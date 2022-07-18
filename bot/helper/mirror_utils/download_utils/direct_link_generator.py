@@ -362,7 +362,7 @@ def krakenfiles(page_link: str) -> str:
         raise DirectDownloadLinkException(
             f"Failed to acquire download URL from kraken for : {page_link}")
     
-    def gdtot(url: str) -> str:
+def gdtot(url: str) -> str:
     """ Gdtot google drive link generator
     By https://github.com/xcscxr """
 
