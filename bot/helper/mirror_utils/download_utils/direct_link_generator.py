@@ -84,7 +84,7 @@ def zippy_share(url: str) -> str:
     """
     try:
         raw = rget(url)
-        dlbutton = re.search(r'href = "([^"]+)" \+ \(([^)]+)\) \+ "([^"]+)', raw.text)
+        dlbutton = re_search(r'href = "([^"]+)" \+ \(([^)]+)\) \+ "([^"]+)', raw.text)
         if dlbutton:
             folder, math_chall, filename = dlbutton.groups()
             math_chall = eval(math_chall)
