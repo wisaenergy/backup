@@ -77,9 +77,45 @@ def direct_link_generator(link: str):
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
 def zippy_share(url: str) -> str:
-    """ ZippyShare direct link generator
-    Based on https://github.com/zevtyardt/lk21 """
+    """ Zippyshare direct link generator
+    Based on https://github.com/zevtyardt/lk21
+    
     return Bypass().bypass_zippyshare(url)
+    """
+    try:
+        raw = rget(url)
+        dlbutton = re.search(r'href = "([^"]+)" \+ \(([^)]+)\) \+ "([^"]+)', raw.text)
+        if dlbutton:
+            folder, math_chall, filename = dlbutton.groups()
+            math_chall = eval(math_chall)
+            return "%s%s%s%s" % (
+                re.search(r"https?://[^/]+", raw.url).group(0), folder, math_chall, filename)
+        else:
+            soup = BeautifulSoup(raw.text, "html.parser")
+            script = soup.find("script", text=re.compile("(?si)\s*var a = \d+;"))
+            if script:
+                sc = str(script)
+                var = re_findall(r"var [ab] = (\d+)", sc)
+                omg = re_findall(r"\.omg (!?=) [\"']([^\"']+)", sc)
+                file = re_findall(r'"(/[^"]+)', sc)
+                if var and omg:
+                    a, b = var
+                    if eval(f"{omg[0][1]!r} {omg[1][0]} {omg[1][1]!r}") or 1:
+                        a = math.ceil(int(a) // 3)
+                    else:
+                        a = math.floor(int(a) // 3)
+                    divider = int(re_findall(f"(\d+)%b", sc)[0])
+                    return re.search(r"(^https://www\d+.zippyshare.com)", raw.url).group(1) + \
+                        "".join([
+                            file[0],
+                            str(a + (divider % int(b))),
+                            file[1]
+                        ])
+            else:
+                raise DirectDownloadLinkException("ERROR: File does not exist on this server")
+    except Exception as e:
+        LOGGER.error(e)
+        raise DirectDownloadLinkException("ERROR: Can't extract the link")
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
