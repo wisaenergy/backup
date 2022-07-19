@@ -89,7 +89,7 @@ def zippy_share(url: str) -> str:
             folder, math_chall, filename = dlbutton.groups()
             math_chall = eval(math_chall)
             return "%s%s%s%s" % (
-                re.search(r"https?://[^/]+", raw.url).group(0), folder, math_chall, filename)
+                re_search(r"https?://[^/]+", raw.url).group(0), folder, math_chall, filename)
         else:
             soup = BeautifulSoup(raw.text, "html.parser")
             script = soup.find("script", text=re.compile("(?si)\s*var a = \d+;"))
